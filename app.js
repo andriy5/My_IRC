@@ -7,20 +7,21 @@ var bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+// Aller chercher les fichiers statiques
+app.use('/public', express.static('public'))
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/welcome.html');
+  res.sendFile(__dirname + '/public/chat.html');
 });
-
-app.post('/chat', (req, res) => {
-  console.log(req.body.username)
-  res.sendFile(__dirname + '/chat.html');
-});
-
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+  socket.on('chat message', (msg, name) => {
+    io.emit('chat message', msg, name);
   });
+
+  socket.on('new user', (name) => {
+    io.emit('new user', name)
+  })
 });
 
 http.listen(3000, () => {
