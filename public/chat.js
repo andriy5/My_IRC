@@ -39,6 +39,11 @@ $( document ).ready(function() {
           $('#m').val('');
           break;
 
+        case "list":
+          msg[1] ? socket.emit('list channel', msg[1]) : socket.emit('list channel');
+          $('#m').val('');
+          break;  
+
         // JUSTE POUR FAIRE LES TESTS
         case "test":
           socket.emit('test', username, room);
@@ -76,4 +81,16 @@ $( document ).ready(function() {
     }
   })
 
+  socket.on('list channel', (channels) => {
+    if (channels == 0) {
+      $('#messages').append($('<li>').text('There is no channels with this name...'));
+    }
+    else {
+      let stringChannels = '';
+      channels.forEach(element => {
+          stringChannels += "• " + element + " ";
+      })
+      $('#messages').append($('<li>').text('Channels: ' + stringChannels));      
+    }
+  })
 });

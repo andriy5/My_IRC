@@ -72,6 +72,19 @@ io.on('connection', (socket) => {
       socket.emit('join channel', 'default');
     }
   })
+
+  socket.on('list channel', (filter) => {
+    if (filter) {
+      let channelSpecific = [];
+      channels.forEach(element => {
+        element.includes(filter) ? channelSpecific.push(element) : null;
+      });
+      socket.emit('list channel', channelSpecific == [] ? 0 : channelSpecific);
+    }
+    else {
+      socket.emit('list channel', channels);
+    }
+  })
 });
 
 http.listen(3000, () => {
