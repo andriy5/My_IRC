@@ -1,8 +1,7 @@
 $( document ).ready(function() {
   var username;
-  var channels = [];
   var socket = io();
-  var commands = ["create"]
+  var commands = ["create"];
 
   $('#connect-chat').click(function(){
     username = $("#username").val();
@@ -21,7 +20,26 @@ $( document ).ready(function() {
   $('form').submit(function(e){
     e.preventDefault(); // prevents page reloading
     if ($('#m').val().substr(0,1) == "/" ) {
-      console.log("Command found");
+      let msg = $('#m').val().split(" ");
+      let cmd = msg[0].substr(1);
+
+      // console.log("message", msg);
+      // console.log(cmd);
+      // console.log("Command found");
+
+      switch (cmd) {
+        case "create":
+          socket.emit('create channel', msg[1]);
+          $('#m').val('');
+          break;
+
+        // JUSTE POUR FAIRE LES TESTS
+        case "test":
+          socket.emit('test', username);
+          $('#m').val('');
+          break;
+
+      }
     }
     else {
       socket.emit('chat message', $('#m').val(), username);
@@ -38,4 +56,9 @@ $( document ).ready(function() {
   socket.on('new user', (name) => {
     $('#messages').append($('<li>').text(name + " joined the room"));
   })
+
+  socket.on('create channel', (name) => {
+    name == 0 ? alert("Channel already exists") : $('#messages').append($('<li>').text("Channel " + name + " created successfully"));
+  })
+
 });
