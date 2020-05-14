@@ -33,6 +33,12 @@ $( document ).ready(function() {
           $('#m').val('');
           break;
 
+        case "part":
+          socket.emit('part channel', msg[1]);
+          room = "default";
+          $('#m').val('');
+          break;
+
         // JUSTE POUR FAIRE LES TESTS
         case "test":
           socket.emit('test', username, room);

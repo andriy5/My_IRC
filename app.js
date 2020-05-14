@@ -61,6 +61,17 @@ io.on('connection', (socket) => {
       socket.emit('join channel', room);
     }
   })
+
+  socket.on('part channel', (room) => {
+    if (channels.indexOf(room) < 0) {
+      socket.emit('join channel', 0);
+    }
+    else {
+      socket.leave(room);
+      socket.join('default');
+      socket.emit('join channel', 'default');
+    }
+  })
 });
 
 http.listen(3000, () => {
