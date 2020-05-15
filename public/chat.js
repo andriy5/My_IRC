@@ -1,7 +1,7 @@
 $( document ).ready(function() {
   var username;
+  // var username = "Username"
   var socket = io();
-  var commands = ["create"];
   var room = "default";
 
   $('#connect-chat').click(function(){
@@ -11,7 +11,7 @@ $( document ).ready(function() {
     } 
     else {
       $(".username").fadeOut();
-      socket.emit("new user", username)
+      socket.emit("new user", username, room)
     }   
   })
 
@@ -28,13 +28,13 @@ $( document ).ready(function() {
           break;
 
         case "join":
-          socket.emit('join channel', msg[1], room);
+          socket.emit('join channel', msg[1], room, username);
           room = msg[1];
           $('#m').val('');
           break;
 
         case "part":
-          socket.emit('part channel', msg[1]);
+          socket.emit('part channel', msg[1], username);
           room = "default";
           $('#m').val('');
           break;
@@ -43,6 +43,11 @@ $( document ).ready(function() {
           msg[1] ? socket.emit('list channel', msg[1]) : socket.emit('list channel');
           $('#m').val('');
           break;  
+
+        case "users":
+          socket.emit('list users', room);
+          $('#m').val('');
+          break;
 
         // JUSTE POUR FAIRE LES TESTS
         case "test":
@@ -56,7 +61,6 @@ $( document ).ready(function() {
       $('#m').val('');
       return false;
     }
-
   });
 
   socket.on('chat message', function(msg, name){
@@ -93,4 +97,18 @@ $( document ).ready(function() {
       $('#messages').append($('<li>').text('Channels: ' + stringChannels));      
     }
   })
+
+  socket.on('list users', (users) => {
+    if (users == []) {
+      $('#messages').append($('<li>').text('There is no users on this channel...'));
+    }
+    else {
+      let stringUsers = '';
+      users.forEach(element => {
+        stringUsers += "• " + element + " ";
+      })
+      $('#messages').append($('<li>').text('Users: ' + stringUsers));
+    }
+  })
+
 });
