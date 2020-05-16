@@ -104,14 +104,15 @@ io.on('connection', (socket) => {
 
   socket.on('list channel', (filter) => {
     if (filter) {
+      let arrayChannels = Object.keys(channels)
       let channelSpecific = [];
-      channels.forEach(element => {
+      arrayChannels.forEach(element => {
         element.includes(filter) ? channelSpecific.push(element) : null;
       });
       socket.emit('list channel', channelSpecific == [] ? 0 : channelSpecific);
     }
     else {
-      socket.emit('list channel', channels);
+      socket.emit('list channel', Object.keys(channels));
     }
   })
 

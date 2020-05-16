@@ -86,6 +86,7 @@ $( document ).ready(function() {
   })
 
   socket.on('list channel', (channels) => {
+    console.log(channels);
     if (channels == 0) {
       $('#messages').append($('<li>').text('There is no channels with this name...'));
     }
