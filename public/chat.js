@@ -49,6 +49,21 @@ $( document ).ready(function() {
           $('#m').val('');
           break;
 
+        case "nick":
+          socket.emit('nickname', msg[1], username);
+          $('#m').val('');
+          break;
+          
+        case "msg":
+          let receiver = msg[1];
+          let message = msg.shift();
+          message = msg.shift();
+          message = msg.join(" ");
+          console.log(message);
+          socket.emit('private message', receiver, message, username);
+          $('#m').val('');
+          break;
+
         // JUSTE POUR FAIRE LES TESTS
         case "test":
           socket.emit('test', username, room);
@@ -63,8 +78,10 @@ $( document ).ready(function() {
     }
   });
 
-  socket.on('chat message', function(msg, name){
-    $('#messages').append($('<li>').text(name + ": " + msg));
+  socket.on('chat message', function(msg, sender){
+    $('#messages').append($('<li>').text(sender + ": " + msg));
+    // $('#messages').append($('<li>').text("PRIVATE MESSAGE : " + msg));
+
   });
 
   socket.on('new user', (name, room) => {
@@ -110,6 +127,10 @@ $( document ).ready(function() {
       })
       $('#messages').append($('<li>').text('Users: ' + stringUsers));
     }
+  })
+
+  socket.on('nickname', (nickname, username) => {
+    $('#messages').append($('<li>').text("Congrats ! You're now " + nickname + " !!"));
   })
 
 });

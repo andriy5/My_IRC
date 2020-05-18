@@ -14,13 +14,49 @@ var channels = {
   default: { users: []}
 };
 
+var infoUsers = {
+
+};
+
+// == PROTOTYPE ==
 // var channels = {
-//   default: {users: ['andriy', 'bertrand']},
+//   default: {users: ["andriy", 'bertrand']},
 //   bikinibottom: {users: ['victor', 'antonio', 'bob', 'patrick']},
 //   gotham: {users: ['batman', 'joker', 'robin']},
 //   tokyo: {users: []}
 // }
 
+// var infoUsers = {
+//   andriy: {nickname: "andrusz"},
+//   batman: {channels: "gotham"},
+//   bob: {nickname: "spongbob", channels: "bikinibottom"}
+// }
+
+function checkUserExist (username) {
+  let check = typeof(infoUsers[username]);
+  if (check != 'undefined' ){
+    return infoUsers[username].id
+  }
+  else {
+    return null;
+  }
+}
+
+function findNickname (username) {
+  let check = typeof(infoUsers[username]);
+  
+  if (check != 'undefined' ){
+    let doublecheck = infoUsers[username].nickname;
+    
+    if (doublecheck != undefined) {
+      return infoUsers[username].nickname
+    }
+    return username;
+  }
+  else {
+    return username;
+  }
+}
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/chat.html');
@@ -30,12 +66,16 @@ io.on('connection', (socket) => {
   socket.join("default");
   
   socket.on('test',(username, room) => {
+    let nickname = findNickname(username);
+    // console.log("Nickname ->", nickname)
     // console.log(username, channels, room);
-    console.log("Channels : ", channels)
+    // console.log("Channels : ", channels)
+    console.log("Info users : ", infoUsers);
     // console.log("Chan. Default : ", channels.tokyo)
   })
 
   socket.on('chat message', (msg, name, room) => {
+    name = findNickname(name);
     io.to(room).emit('chat message', msg, name);
   });
 
@@ -43,6 +83,7 @@ io.on('connection', (socket) => {
     // console.log(channels[roomname]);
     channels[roomname].users.push(username);
     console.log("New User", channels[roomname].users);
+    infoUsers[username] = {id: socket.id};
     // io.sockets.in("default").emit('current room', "You are in room default");
     io.emit('new user', username)
   })
@@ -117,7 +158,35 @@ io.on('connection', (socket) => {
   })
 
   socket.on('list users', (room) => {
-    socket.emit('list users', channels[room].users);
+    let arrayUsers = [];
+    channels[room].users.forEach(element => {
+      let nickname = findNickname(element);
+      arrayUsers.push(nickname);
+    })
+    socket.emit('list users', arrayUsers);
+  })
+
+  socket.on('nickname', (nickname, username)=>{
+    infoUsers[username] = {nickname: nickname};
+    socket.emit('nickname', nickname, username)
+  })
+
+  // socket.on('chat message', (msg, name, room) => {
+  //   name = findNickname(name);
+  //   io.to(room).emit('chat message', msg, name);
+  // });
+
+  socket.on('private message', (receiver, message, sender) => {
+    let checkReceiver = checkUserExist(receiver);
+    
+    sender = findNickname(sender);
+    sender = "🕶 " + sender
+    if (checkReceiver != null) {
+      io.to(checkReceiver).emit('chat message', message, sender );
+    }
+    else {
+      // Alerter message pas envoyé
+    }
   })
 
 });
