@@ -21,8 +21,8 @@ var infoUsers = {
 // == PROTOTYPE ==
 // var channels = {
 //   default: {users: ["andriy", 'bertrand']},
-//   bikinibottom: {users: ['victor', 'antonio', 'bob', 'patrick']},
-//   gotham: {users: ['batman', 'joker', 'robin']},
+//   bikinibottom: {users: ['victor', 'antonio', 'bob', 'patrick'], creator: "bob"},
+//   gotham: {users: ['batman', 'joker', 'robin'], creator: "tyler"},
 //   tokyo: {users: []}
 // }
 
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
     let nickname = findNickname(username);
     // console.log("Nickname ->", nickname)
     // console.log(username, channels, room);
-    // console.log("Channels : ", channels)
+    console.log("Channels : ", channels)
     console.log("Info users : ", infoUsers);
     // console.log("Chan. Default : ", channels.tokyo)
   })
@@ -88,13 +88,13 @@ io.on('connection', (socket) => {
     io.emit('new user', username)
   })
 
-  socket.on('create channel', (name) => {
+  socket.on('create channel', (name, username) => {
     console.log("1st", channels);
     let keys =  Object.keys(channels);
     console.log(keys.indexOf(name));
     if (keys.indexOf(name) == -1) {
       console.log("existe pas")
-      channels[name] = {users: []};
+      channels[name] = {users: [], creator: username};
       // socket.emit('create channel', name);
     }
     else {
@@ -130,6 +130,7 @@ io.on('connection', (socket) => {
       socket.emit('join channel', 0);
     }
     else {
+      console.log("part channel array channels", channels[room].users)
       channels[room].users.forEach((element, index) => {
         if (element == username) {
           channels[room].users.splice(index, 1)
@@ -140,6 +141,29 @@ io.on('connection', (socket) => {
       socket.leave(room);
       socket.join("default");
       socket.emit('join channel', "default");
+    }
+  })
+
+  socket.on('delete channel', (roomToDelete, username) => {
+    // TO-DO: 
+    // - Détruire le channel (a voir avec le timeout auto-delete...)
+    // - messages coté client
+
+    let keys =  Object.keys(channels);
+    console.log(keys.indexOf(roomToDelete));
+    if (keys.indexOf(roomToDelete) == -1) {
+      socket.emit("delete channel", "This channel doesn't exist.")
+    }
+    else {
+      let room = "default";
+      if (channels[roomToDelete].creator == username) {
+        io.to(roomToDelete).emit('force part', roomToDelete);
+        socket.emit("delete channel", roomToDelete + " is now deleted.")
+      }
+      else {
+        socket.emit("delete channel", "You don't have rights to delete this channel")
+      }
+      // channels[roomToDelete] = null
     }
   })
 
@@ -170,11 +194,6 @@ io.on('connection', (socket) => {
     infoUsers[username] = {nickname: nickname};
     socket.emit('nickname', nickname, username)
   })
-
-  // socket.on('chat message', (msg, name, room) => {
-  //   name = findNickname(name);
-  //   io.to(room).emit('chat message', msg, name);
-  // });
 
   socket.on('private message', (receiver, message, sender) => {
     let checkReceiver = checkUserExist(receiver);

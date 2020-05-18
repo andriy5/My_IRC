@@ -23,7 +23,7 @@ $( document ).ready(function() {
 
       switch (cmd) {
         case "create":
-          socket.emit('create channel', msg[1]);
+          socket.emit('create channel', msg[1], username);
           $('#m').val('');
           break;
 
@@ -39,6 +39,11 @@ $( document ).ready(function() {
           $('#m').val('');
           break;
 
+        case "delete":
+          socket.emit('delete channel', msg[1], username);
+          $('#m').val('');
+          break;
+    
         case "list":
           msg[1] ? socket.emit('list channel', msg[1]) : socket.emit('list channel');
           $('#m').val('');
@@ -59,7 +64,6 @@ $( document ).ready(function() {
           let message = msg.shift();
           message = msg.shift();
           message = msg.join(" ");
-          console.log(message);
           socket.emit('private message', receiver, message, username);
           $('#m').val('');
           break;
@@ -97,13 +101,12 @@ $( document ).ready(function() {
       alert("Channel doesn't exists")
     }
     else {
-      $('#messages').empty();
+      // $('#messages').empty();
       $('#messages').append($('<li>').text("You're in channel: " + room));
     }
   })
 
   socket.on('list channel', (channels) => {
-    console.log(channels);
     if (channels == 0) {
       $('#messages').append($('<li>').text('There is no channels with this name...'));
     }
@@ -133,4 +136,13 @@ $( document ).ready(function() {
     $('#messages').append($('<li>').text("Congrats ! You're now " + nickname + " !!"));
   })
 
+  socket.on('force part', (oldRoom) => {
+    // Message que channel vient d'être delete ICI
+    socket.emit('part channel', oldRoom, username);
+    room="default";
+  })
+
+  socket.on('delete channel', (message) => {
+    $('#messages').append($('<li>').text(message));
+  })
 });
