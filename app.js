@@ -80,12 +80,18 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new user', (username, roomname) => {
-    // console.log(channels[roomname]);
-    channels[roomname].users.push(username);
-    console.log("New User", channels[roomname].users);
-    infoUsers[username] = {id: socket.id};
-    // io.sockets.in("default").emit('current room', "You are in room default");
-    io.emit('new user', username)
+    if (checkUserExist(username) == null) {
+      channels[roomname].users.push(username);
+      console.log("New User", channels[roomname].users);
+      infoUsers[username] = {id: socket.id};
+      // io.sockets.in("default").emit('current room', "You are in room default");
+      io.emit('new user', username)
+    }
+    else {
+      socket.emit('new user', 0)
+    }
+
+
   })
 
   socket.on('create channel', (name, username) => {

@@ -10,7 +10,6 @@ $( document ).ready(function() {
       alert('Please put a username');
     } 
     else {
-      $(".username").fadeOut();
       socket.emit("new user", username, room)
     }   
   })
@@ -88,12 +87,18 @@ $( document ).ready(function() {
 
   });
 
-  socket.on('new user', (name, room) => {
-    $('#messages').append($('<li>').text(name + " joined the room"));
+  socket.on('new user', (name) => {
+    if (name !== 0) {
+      $(".username").fadeOut();
+      $('#messages').append($('<li>').text(name + " joined the room"));
+    }
+    else {
+      alert("Username already exist");
+    }
   })
 
   socket.on('create channel', (name) => {
-    name == 0 ? alert("Channel already exists") : $('#messages').append($('<li>').text("Channel " + name + " created successfully"));
+    name == 0 ? alert("Channel already exist") : $('#messages').append($('<li>').text("Channel " + name + " created successfully"));
   })
 
   socket.on('join channel', (room) => {
