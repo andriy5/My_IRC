@@ -90,7 +90,7 @@ $( document ).ready(function() {
   socket.on('new user', (name) => {
     if (name !== 0) {
       $(".username").fadeOut();
-      $('#messages').append($('<li>').text(name + " joined the room"));
+      $('#messages').append($('<li>').text("📣 " + name + " joined the room"));
     }
     else {
       alert("Username already exist");
@@ -106,7 +106,7 @@ $( document ).ready(function() {
       alert("Channel doesn't exists")
     }
     else {
-      // $('#messages').empty();
+      $('#messages').empty();
       $('#messages').append($('<li>').text("You're in channel: " + room));
     }
   })
@@ -142,7 +142,6 @@ $( document ).ready(function() {
   })
 
   socket.on('force part', (oldRoom) => {
-    // Message que channel vient d'être delete ICI
     socket.emit('part channel', oldRoom, username);
     room="default";
   })
@@ -150,4 +149,9 @@ $( document ).ready(function() {
   socket.on('delete channel', (message) => {
     $('#messages').append($('<li>').text(message));
   })
+
+  socket.on("announce", (message) => {
+    $('#messages').append($('<li>').text(message));
+  })
+  
 });

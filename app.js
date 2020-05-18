@@ -101,7 +101,8 @@ io.on('connection', (socket) => {
     if (keys.indexOf(name) == -1) {
       console.log("existe pas")
       channels[name] = {users: [], creator: username};
-      // socket.emit('create channel', name);
+      socket.emit('create channel', name);
+      io.emit('announce', "📣 "+ findNickname(username)+' have created a new channel: ' + name);
     }
     else {
       socket.emit('create channel', 0);
@@ -165,6 +166,7 @@ io.on('connection', (socket) => {
       if (channels[roomToDelete].creator == username) {
         io.to(roomToDelete).emit('force part', roomToDelete);
         socket.emit("delete channel", roomToDelete + " is now deleted.")
+        io.emit('announce', "📣 "+ findNickname(username)+' have deleted this channel: ' + roomToDelete);
       }
       else {
         socket.emit("delete channel", "You don't have rights to delete this channel")
@@ -199,6 +201,8 @@ io.on('connection', (socket) => {
   socket.on('nickname', (nickname, username)=>{
     infoUsers[username] = {nickname: nickname};
     socket.emit('nickname', nickname, username)
+    io.emit('announce', "📣 "+ username + " just changed his name to " + nickname);
+  
   })
 
   socket.on('private message', (receiver, message, sender) => {
