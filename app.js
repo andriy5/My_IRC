@@ -18,6 +18,10 @@ var infoUsers = {
 
 };
 
+var countdownChannels = {
+
+};
+
 // == PROTOTYPE ==
 // var channels = {
 //   default: {users: ["andriy", 'bertrand']},
@@ -31,6 +35,44 @@ var infoUsers = {
 //   batman: {channels: "gotham"},
 //   bob: {nickname: "spongbob", channels: "bikinibottom"}
 // }
+
+function deleteChannel(channel, automatic) {
+  // Check si user à l'int de channel ?
+  if (automatic == true) {
+    io.to(channel).emit('force part', channel);
+    io.emit('announce', "📣 " + channel + " channel has been deleted automatically for no activities.");
+  }
+
+  console.log(typeof(channels)[channel]);
+  setTimeout(function(){
+    delete channels[channel];
+    delete countdownChannels[channel];
+  },1000);
+  
+}
+
+function checkCountdown(channelsToCheck) {
+  // Check every X minutes (or seconds) if the time limit of the channel is reached
+  
+  let currentTime = new Date();
+
+  for (var key in channelsToCheck) {
+    // console.log(channelsToCheck[key], currentTime)
+    if (channelsToCheck[key].timeLimite < currentTime) {
+      console.log('Delete channel : ' + key)
+      deleteChannel(key, true)
+    }
+  }
+}
+
+function setCountdown(channel, minutes) {
+  if (channel != "default" && Number.isInteger(minutes)) {
+    let date = new Date();
+    let limit = date.setMinutes( date.getMinutes() + 1 );
+    countdownChannels[channel] = {timeLimite: limit};
+  }
+  setInterval(function(){checkCountdown(countdownChannels)},1000);
+}
 
 function checkUserExist (username) {
   let check = typeof(infoUsers[username]);
@@ -71,11 +113,13 @@ io.on('connection', (socket) => {
     // console.log(username, channels, room);
     console.log("Channels : ", channels)
     console.log("Info users : ", infoUsers);
+    console.log("Coutdown Channels : ", countdownChannels);
     // console.log("Chan. Default : ", channels.tokyo)
   })
 
   socket.on('chat message', (msg, name, room) => {
     name = findNickname(name);
+    setCountdown(room, 2);
     io.to(room).emit('chat message', msg, name);
   });
 
@@ -100,6 +144,7 @@ io.on('connection', (socket) => {
     console.log(keys.indexOf(name));
     if (keys.indexOf(name) == -1) {
       console.log("existe pas")
+      setCountdown(name, 2);
       channels[name] = {users: [], creator: username};
       socket.emit('create channel', name);
       io.emit('announce', "📣 "+ findNickname(username)+' have created a new channel: ' + name);
@@ -117,6 +162,7 @@ io.on('connection', (socket) => {
       socket.emit('join channel', 0);
     }
     else {
+      console.log(channels[currentRoom]);
       channels[currentRoom].users.forEach((element, index) => {
         if (element == username) {
           channels[currentRoom].users.splice(index, 1)
@@ -171,7 +217,7 @@ io.on('connection', (socket) => {
       else {
         socket.emit("delete channel", "You don't have rights to delete this channel")
       }
-      // channels[roomToDelete] = null
+      setTimeout(function(){deleteChannel(roomToDelete, false)},3000);
     }
   })
 
