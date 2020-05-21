@@ -1,0 +1,13 @@
+.welcome {
+  background-color: white;
+  height: 100%;
+  width:100%;
+  position: absolute;
+  z-index: 99999;
+  padding-top: 15%;
+}
+
+input {
+  border: none;
+  border-bottom:1px solid black;
+}
