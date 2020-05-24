@@ -1,14 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import UsernameInput from './UsernameInput';
-import Chat from './Chat';
+
+import Home from './Home';
 
 function App() {
   return (
     <div>
-      <UsernameInput  />
-      <Chat />
+      <Home />
     </div>
   );
 }

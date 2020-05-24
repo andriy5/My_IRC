@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import './UsernameInput.css';
+import './Home.css';
+import { ConnectionToSocket } from './Api';
+import ChatInput from './ChatInput';
 
-export default class UsernameInput extends Component {
+
+export default class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = { username: '' };
+    this.state = { username: '', room: "default" };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -12,22 +15,25 @@ export default class UsernameInput extends Component {
   }
 
   handleChange = (e) => {
-    // console.log(e.target.value)
     this.setState({username: e.target.value});
   }
 
   handleClick = (e) => {
     console.log(this.state.username);
+    ConnectionToSocket(this.state.username, this.state.room);
   }
 
   keyPressed(event) {
     if (event.key === "Enter") {
       console.log(this.state.username);
+      ConnectionToSocket(this.state.username, this.state.room);
     }
   }
-
+  
   render() {
+    const username = this.state.username;
     return (
+      <>
       <div className="text-center welcome">
         <h1>Welcome Stranger !</h1>
         <h3>What's your name ?</h3>
@@ -36,6 +42,9 @@ export default class UsernameInput extends Component {
           <button className="btn" onClick={this.handleClick} >Enter</button>
         </div>
       </div>
+      <ChatInput username={username}/>
+      {/* <ChatInput username="username"/> */}
+      </>
     );
   }
 }

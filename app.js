@@ -68,7 +68,7 @@ function checkCountdown(channelsToCheck) {
 function setCountdown(channel, minutes) {
   if (channel != "default" && Number.isInteger(minutes)) {
     let date = new Date();
-    let limit = date.setMinutes( date.getMinutes() + 1 );
+    let limit = date.setMinutes( date.getMinutes() + minutes );
     countdownChannels[channel] = {timeLimite: limit};
   }
   setInterval(function(){checkCountdown(countdownChannels)},1000);
@@ -118,6 +118,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('chat message', (msg, name, room) => {
+    console.log("msg", msg, 'username', name, "room", room);
     name = findNickname(name);
     setCountdown(room, 2);
     io.to(room).emit('chat message', msg, name);
@@ -129,7 +130,7 @@ io.on('connection', (socket) => {
       console.log("New User", channels[roomname].users);
       infoUsers[username] = {id: socket.id};
       // io.sockets.in("default").emit('current room', "You are in room default");
-      io.emit('new user', username)
+      io.to("default").emit('new user', username)
     }
     else {
       socket.emit('new user', 0)
@@ -266,6 +267,6 @@ io.on('connection', (socket) => {
 
 });
 
-http.listen(3000, () => {
-  console.log('listening on *:3000');
+http.listen(4000, () => {
+  console.log('listening on *:4000');
 });
