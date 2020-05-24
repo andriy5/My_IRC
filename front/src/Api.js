@@ -76,7 +76,6 @@ function sendMessage(message, username, room, cb) {
 
 socket.on('new user', (name) => {
   if (name !== 0) {
-    alert(name, "join the room")
     $('.welcome').fadeOut();
   }
   else {

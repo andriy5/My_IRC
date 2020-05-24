@@ -19,13 +19,11 @@ export default class Home extends Component {
   }
 
   handleClick = (e) => {
-    console.log(this.state.username);
     ConnectionToSocket(this.state.username, this.state.room);
   }
 
-  keyPressed(event) {
+  keyPressed = (event) => {
     if (event.key === "Enter") {
-      console.log(this.state.username);
       ConnectionToSocket(this.state.username, this.state.room);
     }
   }

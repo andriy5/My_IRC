@@ -101,7 +101,14 @@ function findNickname (username) {
 }
 
 function findCurrentRoom (username) {
-  
+  var count = Object.keys(channels).length
+
+  for (let [key, value] of Object.entries(channels)) {
+    console.log(`${key}: ${value}`);
+    for (let [key, value] of Object.entries(value)) {
+      console.log(`${key}: ${value}`);
+    }
+  }
 }
 
 app.get('/', (req, res) => {
@@ -119,6 +126,7 @@ io.on('connection', (socket) => {
     console.log("Info users : ", infoUsers);
     console.log("Coutdown Channels : ", countdownChannels);
     // console.log("Chan. Default : ", channels.tokyo)
+    findCurrentRoom(username);
   })
 
   socket.on('chat message', (msg, name, room) => {
@@ -203,10 +211,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('delete channel', (roomToDelete, username) => {
-    // TO-DO: 
-    // - Détruire le channel (a voir avec le timeout auto-delete...)
-    // - messages coté client
-
     let keys =  Object.keys(channels);
     console.log(keys.indexOf(roomToDelete));
     if (keys.indexOf(roomToDelete) == -1) {

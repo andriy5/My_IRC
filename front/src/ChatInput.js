@@ -33,6 +33,7 @@ export default class ChatInput extends Component {
       e.preventDefault();
       $('#textbox').val('');
       this.setState({value: ''});
+      console.log(this.state);
       sendMessage(this.state.value, this.props.username, this.state.room)
     }
   }
